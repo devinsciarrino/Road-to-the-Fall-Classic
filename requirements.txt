@@ -16,7 +16,6 @@ openpyxl>=3.1          # read the legacy .xlsm validation baseline
 # Testing
 pytest>=7.4
 
-# --- Phase 2 (dashboard API) — install when we get there ---
-# fastapi>=0.110
-# uvicorn[standard]>=0.27
-# apscheduler>=3.10
+# --- Phase 2 (dashboard API) ---
+fastapi>=0.110
+uvicorn[standard]>=0.27

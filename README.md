@@ -6,10 +6,9 @@ A reproducible Python rewrite of a baseball-analytics study originally done in R
 It automates data collection, reproduces the original four logistic-regression models,
 and adds XGBoost and a neural network with honest out-of-sample evaluation.
 
-> **Status:** Phase 1 (data pipeline + models) is complete and verified, with automated data
-> collection covering **2000–2025**. Phase 2 (a live FastAPI + React dashboard) is scaffolded
-> under `api/` and `dashboard/` — and now unblocked, since the MLB Stats API supplies
-> current-season data. See the roadmap below.
+> **Status:** Both phases are built and verified. Phase 1 — automated data collection
+> (2000–2025) + the models. Phase 2 — a **live** FastAPI + React/Vite dashboard that scores the
+> current season on demand from the MLB Stats API. See [Live dashboard](#live-dashboard-phase-2).
 
 ---
 
@@ -65,9 +64,12 @@ src/rttfc/
     xgb.py               # regularized XGBClassifier (scale_pos_weight for imbalance)
     nn.py                # small, regularized sklearn MLP
     evaluate.py          # CV metrics + leave-one-season-out champion ranking
+  serve.py               # score a (live) season -> ranked WS-win probabilities (+ cache)
   train.py               # CLI: train, evaluate, persist artifacts/metrics.json
   predict.py             # CLI: 2023 Rangers replication + score saved models
-tests/                   # feature-parity + model-replication tests
+api/main.py              # FastAPI service (standings/team/models/seasons)
+dashboard/               # React + Vite frontend
+tests/                   # feature-parity + model-replication + MLB-API tests
 legacy/                  # original R script, Excel workbook, and writeup
 data/, artifacts/        # generated (gitignored)
 ```
@@ -120,11 +122,27 @@ dataset this small and imbalanced.
 
 ---
 
-## Phase 2 roadmap — live dashboard
+## Live dashboard (Phase 2)
 
-- **`api/`** — FastAPI service exposing `/standings` (current-season WS-win probabilities for
-  all 30 teams), `/team/{id}`, and `/models`, with a scheduled refresh.
-- **`dashboard/`** — React + Vite app: a probability leaderboard, per-team drill-down, model
-  comparison, and historical accuracy.
-- The current-season data feed is **ready**: `mlb_statsapi.fetch_season(<year>)` returns live
-  team stats for the in-progress season, so the API can score the current standings on demand.
+A FastAPI backend serves model predictions; a React + Vite frontend renders them.
+
+```bash
+# Terminal 1 — backend (needs trained models: python -m rttfc.train)
+uvicorn api.main:app --port 8000
+
+# Terminal 2 — frontend
+cd dashboard && npm install && npm run dev
+# open http://localhost:5173   (Vite proxies /api -> http://localhost:8000)
+```
+
+- **API** (`api/main.py`): `GET /standings?season=&model=`, `/team/{id}`, `/models`, `/seasons`,
+  `/healthz`. It fetches the requested season from the MLB Stats API, scores all 30 teams, and
+  caches the result for 30 minutes. Season defaults to the current (in-progress) one.
+- **Dashboard** (`dashboard/`): a live **win-share leaderboard** for all 30 teams, season + model
+  selectors, a per-team stat breakdown (OPS+/WHIP+/…), and an out-of-sample model-accuracy table.
+  *Win share* normalizes each model's probabilities to sum to 100% across the league, so it reads
+  sensibly regardless of how calibrated a given model is.
+
+Because the serving features are rates and league-normalized stats (scale-invariant), the models
+score a **partially-played** current season meaningfully — the dashboard updates as the season
+unfolds.
