@@ -1,0 +1,103 @@
+:root {
+  --bg: #0e1117;
+  --panel: #161b22;
+  --panel-2: #1c2230;
+  --border: #2a3140;
+  --text: #e6edf3;
+  --muted: #8b97a7;
+  --accent: #e4572e;     /* baseball-seam red */
+  --accent-2: #f2a900;   /* gold */
+  --good: #3fb950;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.app { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+
+.header h1 { margin: 0; font-size: 28px; letter-spacing: 0.3px; }
+.tagline { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+/* Controls */
+.controls {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  margin: 20px 0; padding: 14px 16px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+}
+.controls label { display: flex; flex-direction: column; font-size: 12px; color: var(--muted); gap: 4px; }
+.controls select {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 10px; font-size: 14px;
+}
+.model-toggle { display: flex; gap: 6px; }
+.model-toggle button, .refresh {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 8px 14px; font-size: 13px; cursor: pointer;
+}
+.model-toggle button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.refresh { margin-left: auto; }
+.refresh:disabled { opacity: 0.6; cursor: default; }
+.dataset-note { width: 100%; color: var(--muted); font-size: 12px; }
+
+.error {
+  background: #3d1418; border: 1px solid #b3403a; color: #ffb3ad;
+  padding: 10px 14px; border-radius: 8px; margin-bottom: 16px; font-size: 14px;
+}
+
+/* Layout */
+.grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; }
+@media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+.panel, .card {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+}
+.side { display: flex; flex-direction: column; gap: 20px; }
+
+/* Leaderboard */
+.leaderboard-head h2 { font-size: 16px; margin: 0 0 12px; display: flex; align-items: center; gap: 10px; }
+.model-chip {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+  padding: 2px 8px; border-radius: 999px;
+}
+.team-list { list-style: none; margin: 0; padding: 0; }
+.team-row {
+  display: grid; grid-template-columns: 28px 1.4fr 2fr 52px; align-items: center;
+  gap: 10px; padding: 7px 8px; border-radius: 8px; cursor: pointer;
+}
+.team-row:hover { background: var(--panel-2); }
+.team-row.selected { background: var(--panel-2); outline: 1px solid var(--accent); }
+.rank { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; font-size: 13px; }
+.team-name { font-size: 14px; display: flex; flex-direction: column; }
+.record { color: var(--muted); font-size: 11px; }
+.bar-wrap { background: var(--panel-2); border-radius: 999px; height: 10px; overflow: hidden; }
+.bar { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--accent)); border-radius: 999px; }
+.pct { text-align: right; font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; }
+
+/* Team detail */
+.detail-head { display: flex; justify-content: space-between; align-items: baseline; }
+.detail-head h3 { margin: 0; font-size: 17px; }
+.big-share { font-size: 24px; font-weight: 700; color: var(--accent-2); }
+.detail-sub { color: var(--muted); font-size: 12px; margin: 4px 0 12px; }
+.raw-prob { margin-left: 8px; opacity: 0.8; }
+.stat-table { width: 100%; border-collapse: collapse; }
+.stat-table td { padding: 6px 4px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.stat-label { color: var(--muted); }
+.stat-val { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Model comparison */
+.model-comparison h3 { margin: 0 0 4px; font-size: 15px; }
+.muted { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+.cmp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.cmp-table th { text-align: right; color: var(--muted); font-weight: 500; padding: 4px; font-size: 12px; }
+.cmp-table th:first-child, .cmp-table td:first-child { text-align: left; }
+.cmp-table td { text-align: right; padding: 5px 4px; border-top: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.cmp-table tr.active td { color: var(--accent-2); font-weight: 600; }
+
+.placeholder { color: var(--muted); padding: 20px; text-align: center; }
+.footer { color: var(--muted); font-size: 12px; margin-top: 28px; text-align: center; line-height: 1.5; }
