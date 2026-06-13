@@ -26,6 +26,7 @@ import pandas as pd
 import requests
 
 from rttfc import config
+from rttfc.data.mlb_statsapi import fetch_seasons
 
 
 def download_lahman_teams(force: bool = False) -> pd.DataFrame:
@@ -80,12 +81,35 @@ def _normalize(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def collect(force: bool = False) -> pd.DataFrame:
+def fetch_mlb_api_backfill(lahman_max_year: int) -> pd.DataFrame | None:
+    """Fetch seasons after the Lahman mirror's coverage from the MLB Stats API."""
+    years = list(range(lahman_max_year + 1, config.FULL_END_YEAR + 1))
+    if not years:
+        return None
+    try:
+        mlb = fetch_seasons(years, labeled_only=True)
+        return mlb if len(mlb) else None
+    except Exception as err:  # never let a live-API hiccup break the historical build
+        print(f"[collect] MLB Stats API unavailable, continuing with Lahman only: {err}",
+              file=sys.stderr)
+        return None
+
+
+def collect(force: bool = False, use_mlb_api: bool = True) -> pd.DataFrame:
     """Build and persist the raw team-season table; return it."""
     lahman = download_lahman_teams(force=force)
-    recent = load_recent_seasons()
-    raw = lahman if recent is None else pd.concat([lahman, recent], ignore_index=True)
+    frames = [lahman]
 
+    if use_mlb_api:
+        mlb = fetch_mlb_api_backfill(int(lahman["yearID"].max()))
+        if mlb is not None:
+            frames.append(mlb)
+
+    recent = load_recent_seasons()
+    if recent is not None:
+        frames.append(recent)
+
+    raw = pd.concat(frames, ignore_index=True)
     df = _normalize(raw)
     df.to_parquet(config.RAW_TEAMS, index=False)
 
@@ -99,10 +123,11 @@ def collect(force: bool = False) -> pd.DataFrame:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Collect team-season data (Lahman + recent).")
+    parser = argparse.ArgumentParser(description="Collect team-season data (Lahman + MLB Stats API).")
     parser.add_argument("--force", action="store_true", help="re-download the Lahman mirror")
+    parser.add_argument("--no-mlb-api", action="store_true", help="skip the MLB Stats API backfill")
     args = parser.parse_args()
-    collect(force=args.force)
+    collect(force=args.force, use_mlb_api=not args.no_mlb_api)
 
 
 if __name__ == "__main__":
