@@ -54,6 +54,16 @@ def models() -> dict:
     }
 
 
+@app.get("/coefficients")
+def coefficients() -> dict:
+    """Per-variable logistic coefficients + p-values for each of the four model specs."""
+    metrics = serve.model_metrics()
+    return {
+        "specs": metrics.get("logistic_coefficients", {}),
+        "window": "2000-2015 (replication)",
+    }
+
+
 @app.get("/seasons")
 def seasons() -> dict:
     current = serve.current_season()

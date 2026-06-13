@@ -45,6 +45,19 @@ def train(features: list[str] | None = None) -> dict:
         }
         for name, f in fits.items()
     }
+    # Per-variable coefficients + p-values for the dashboard's significance charts.
+    logistic_coefficients = {
+        name: [
+            {
+                "variable": var,
+                "coef": round(float(row["coef"]), 5),
+                "z": round(float(row["z"]), 4),
+                "p_value": round(float(row["p_value"]), 5),
+            }
+            for var, row in f.summary_frame().iterrows()
+        ]
+        for name, f in fits.items()
+    }
 
     # 2) Out-of-sample comparison of logistic / XGBoost / neural net on full data.
     comparison = ev.run_comparison(labeled, features)
@@ -69,6 +82,7 @@ def train(features: list[str] | None = None) -> dict:
             "replication_end_year": config.REPLICATION_END_YEAR,
         },
         "logistic_replication_2000_2015": logistic_replication,
+        "logistic_coefficients": logistic_coefficients,
         "advanced_comparison": {
             "features": features,
             "random_baseline_champion_rank": round(ev.random_baseline_rank(labeled), 3),

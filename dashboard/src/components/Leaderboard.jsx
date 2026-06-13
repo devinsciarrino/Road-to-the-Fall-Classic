@@ -23,6 +23,19 @@ export default function Leaderboard({ standings, loading, selected, onSelect }) 
               onClick={() => onSelect(t)}
             >
               <span className="rank">{t.rank}</span>
+              {t.logo ? (
+                <img
+                  className="team-logo"
+                  src={t.logo}
+                  alt=""
+                  loading="lazy"
+                  onError={(e) => {
+                    e.currentTarget.style.visibility = "hidden";
+                  }}
+                />
+              ) : (
+                <span className="team-logo logo-fallback">{t.teamID}</span>
+              )}
               <span className="team-name">
                 {t.name}
                 <span className="record">

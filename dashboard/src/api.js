@@ -13,5 +13,6 @@ async function get(path) {
 
 export const getSeasons = () => get("/seasons");
 export const getModels = () => get("/models");
+export const getCoefficients = () => get("/coefficients");
 export const getStandings = (season, model) =>
   get(`/standings?season=${season}&model=${model}`);

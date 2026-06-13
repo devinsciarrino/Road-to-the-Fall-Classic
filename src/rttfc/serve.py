@@ -30,7 +30,14 @@ CACHE_TTL_SECONDS = 1800  # 30 minutes
 # Stats surfaced in the per-team breakdown.
 DISPLAY_STATS = ["BA", "OBP", "SLG", "ERA", "KPN", "WHIP", "FP", "OPSP", "WHIPP", "FPP"]
 
+# Official MLB team logos, keyed by the MLB team id carried through from the Stats API.
+LOGO_URL = "https://www.mlbstatic.com/team-logos/{id}.svg"
+
 _cache: dict[tuple[int, str], tuple[float, pd.DataFrame]] = {}
+
+
+def _logo(mlb_id) -> str | None:
+    return None if pd.isna(mlb_id) else LOGO_URL.format(id=int(mlb_id))
 
 
 def current_season() -> int:
@@ -90,6 +97,8 @@ def standings_payload(year: int, model_name: str = "logistic") -> dict:
             "teamID": r["teamID"],
             "name": r["name"],
             "lgID": r.get("lgID", ""),
+            "mlb_id": None if pd.isna(r.get("mlb_id")) else int(r["mlb_id"]),
+            "logo": _logo(r.get("mlb_id")),
             "wins": None if pd.isna(r.get("W")) else int(r["W"]),
             "losses": None if pd.isna(r.get("L")) else int(r["L"]),
             "games": None if pd.isna(r.get("G")) else int(r["G"]),

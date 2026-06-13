@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { getSeasons, getModels, getStandings } from "./api.js";
+import { getSeasons, getModels, getStandings, getCoefficients } from "./api.js";
 import Controls from "./components/Controls.jsx";
 import Leaderboard from "./components/Leaderboard.jsx";
 import TeamDetail from "./components/TeamDetail.jsx";
 import ModelComparison from "./components/ModelComparison.jsx";
+import PValueChart from "./components/PValueChart.jsx";
 
 export default function App() {
   const [seasons, setSeasons] = useState([]);
@@ -11,6 +12,7 @@ export default function App() {
   const [models, setModels] = useState([]);
   const [model, setModel] = useState("logistic");
   const [modelsInfo, setModelsInfo] = useState(null);
+  const [coefficients, setCoefficients] = useState(null);
 
   const [standings, setStandings] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -19,13 +21,14 @@ export default function App() {
 
   // Bootstrap: seasons + model metadata.
   useEffect(() => {
-    Promise.all([getSeasons(), getModels()])
-      .then(([s, m]) => {
+    Promise.all([getSeasons(), getModels(), getCoefficients()])
+      .then(([s, m, c]) => {
         setSeasons(s.seasons.slice().reverse());
         setSeason(s.current);
         setModels(m.models);
         setModel(m.default || m.models[0]);
         setModelsInfo(m);
+        setCoefficients(c);
       })
       .catch((e) => setError(e.message));
   }, []);
@@ -50,7 +53,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>⚾ Road to the Fall Classic</h1>
+        <h1>⚾ Road to the Fall Classic 2</h1>
         <p className="tagline">
           World Series win probability from regular-season stats — live via the MLB Stats API
         </p>
@@ -82,6 +85,7 @@ export default function App() {
         <aside className="side">
           <TeamDetail team={selected} season={season} model={model} />
           <ModelComparison info={modelsInfo} activeModel={model} />
+          <PValueChart coefficients={coefficients} />
         </aside>
       </main>
 

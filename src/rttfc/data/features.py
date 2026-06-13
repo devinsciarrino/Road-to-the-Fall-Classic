@@ -15,7 +15,7 @@ from rttfc import config
 from rttfc.data.collect import collect
 
 # Columns carried through for identification / context (not model features).
-ID_COLS = ["yearID", "teamID", "franchID", "lgID", "name", "G", "W", "L", "WSWin", config.TARGET]
+ID_COLS = ["yearID", "teamID", "franchID", "lgID", "name", "mlb_id", "G", "W", "L", "WSWin", config.TARGET]
 
 
 def add_batting_rates(df: pd.DataFrame) -> pd.DataFrame:

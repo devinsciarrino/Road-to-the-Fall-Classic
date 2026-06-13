@@ -123,7 +123,7 @@ def fetch_season(season: int) -> pd.DataFrame:
         if tid not in hitting:  # not an active MLB club that season
             continue
         row = {"yearID": season, "teamID": info["teamID"], "franchID": info["teamID"],
-               "lgID": info["lgID"], "name": info["name"]}
+               "lgID": info["lgID"], "name": info["name"], "mlb_id": tid}
         row.update(hitting[tid])
         row.update(pitching.get(tid, {}))
         row.update(fielding.get(tid, {}))
